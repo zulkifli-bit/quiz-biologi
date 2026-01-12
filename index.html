@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Klasifikasi Makhluk Hidup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .question-box {
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #e8eaff;
+        }
+
+        .option.correct {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+
+        .option.wrong {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-next {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-restart {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-restart:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .feedback.correct {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .feedback.wrong {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .result-box {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .result-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .result-message {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .emoji {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 Quiz Klasifikasi Makhluk Hidup</h1>
+        <p class="subtitle">Tingkat Dasar</p>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-label">Soal</div>
+                <div class="score-value"><span id="current-question">1</span>/<span id="total-questions">10</span></div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Benar</div>
+                <div class="score-value" id="correct-count">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Salah</div>
+                <div class="score-value" id="wrong-count" style="color: #ef4444;">0</div>
+            </div>
+        </div>
+
+        <div id="quiz-container">
+            <div class="question-box">
+                <div class="question-number" id="question-number">Soal 1</div>
+                <div class="question-text" id="question-text"></div>
+                <div class="options" id="options-container"></div>
+                <div id="feedback"></div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-submit" id="submit-btn" onclick="checkAnswer()">Periksa Jawaban</button>
+                <button class="btn-next" id="next-btn" onclick="nextQuestion()" style="display: none;">Soal Berikutnya</button>
+            </div>
+        </div>
+
+        <div id="result-container" style="display: none;"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Makhluk hidup dibagi menjadi berapa kingdom utama?",
+                options: ["3 kingdom", "4 kingdom", "5 kingdom", "6 kingdom"],
+                correct: 2,
+                explanation: "Klasifikasi modern membagi makhluk hidup menjadi 5 kingdom: Monera, Protista, Fungi, Plantae, dan Animalia."
+            },
+            {
+                question: "Hewan yang memiliki tulang belakang disebut...",
+                options: ["Invertebrata", "Vertebrata", "Avertebrata", "Mamalia"],
+                correct: 1,
+                explanation: "Vertebrata adalah kelompok hewan yang memiliki tulang belakang, seperti ikan, katak, burung, dan manusia."
+            },
+            {
+                question: "Tumbuhan yang berkembang biak dengan biji terbagi menjadi...",
+                options: ["Gymnospermae dan Angiospermae", "Dikotil dan Monokotil", "Lumut dan Paku", "Talus dan Kormus"],
+                correct: 0,
+                explanation: "Tumbuhan berbiji dibagi menjadi Gymnospermae (biji terbuka) dan Angiospermae (biji tertutup)."
+            },
+            {
+                question: "Jamur termasuk dalam kingdom...",
+                options: ["Plantae", "Animalia", "Fungi", "Protista"],
+                correct: 2,
+                explanation: "Jamur memiliki kingdom sendiri yaitu Fungi karena memiliki ciri khas tersendiri yang berbeda dengan tumbuhan dan hewan."
+            },
+            {
+                question: "Bakteri termasuk dalam kingdom...",
+                options: ["Monera", "Protista", "Fungi", "Plantae"],
+                correct: 0,
+                explanation: "Bakteri adalah organisme prokariotik yang termasuk dalam kingdom Monera."
+            },
+            {
+                question: "Hewan yang menyusui anaknya termasuk dalam kelas...",
+                options: ["Reptilia", "Aves", "Mammalia", "Amphibia"],
+                correct: 2,
+                explanation: "Mammalia adalah kelas hewan yang menyusui anaknya dengan kelenjar susu."
+            },
+            {
+                question: "Tumbuhan paku termasuk dalam divisi...",
+                options: ["Bryophyta", "Pteridophyta", "Spermatophyta", "Thallophyta"],
+                correct: 1,
+                explanation: "Pteridophyta adalah divisi untuk tumbuhan paku yang sudah memiliki akar, batang, dan daun sejati."
+            },
+            {
+                question: "Ciri khas kingdom Animalia adalah...",
+                options: ["Dapat membuat makanan sendiri", "Tidak dapat bergerak", "Heterotrof", "Memiliki dinding sel"],
+                correct: 2,
+                explanation: "Hewan bersifat heterotrof, yaitu tidak dapat membuat makanan sendiri dan harus memakan organisme lain."
+            },
+            {
+                question: "Urutan takson dari yang terbesar hingga terkecil adalah...",
+                options: ["Kingdom - Filum - Kelas - Ordo - Famili - Genus - Spesies", "Spesies - Genus - Famili - Ordo - Kelas - Filum - Kingdom", "Kingdom - Kelas - Ordo - Famili - Genus - Spesies - Filum", "Filum - Kingdom - Kelas - Ordo - Famili - Genus - Spesies"],
+                correct: 0,
+                explanation: "Urutan takson yang benar dari terbesar ke terkecil: Kingdom, Filum/Divisi, Kelas, Ordo, Famili, Genus, Spesies."
+            },
+            {
+                question: "Tumbuhan yang memiliki biji berkeping dua disebut...",
+                options: ["Monokotil", "Dikotil", "Gymnospermae", "Bryophyta"],
+                correct: 1,
+                explanation: "Dikotil adalah tumbuhan yang bijinya memiliki dua keping (kotiledon), seperti kacang-kacangan."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let correctAnswers = 0;
+        let wrongAnswers = 0;
+        let selectedOption = null;
+
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('question-number').textContent = `Soal ${currentQuestion + 1}`;
+            document.getElementById('question-text').textContent = q.question;
+            document.getElementById('current-question').textContent = currentQuestion + 1;
+            document.getElementById('total-questions').textContent = questions.length;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = option;
+                div.onclick = () => selectOption(index);
+                optionsContainer.appendChild(div);
+            });
+
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('submit-btn').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'none';
+            selectedOption = null;
+        }
+
+        function selectOption(index) {
+            if (selectedOption !== null) return;
+            
+            selectedOption = index;
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === index) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        function checkAnswer() {
+            if (selectedOption === null) {
+                alert('Silakan pilih jawaban terlebih dahulu!');
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            const feedback = document.getElementById('feedback');
+
+            options.forEach((opt, i) => {
+                opt.classList.add('disabled');
+                if (i === q.correct) {
+                    opt.classList.add('correct');
+                }
+                if (i === selectedOption && i !== q.correct) {
+                    opt.classList.add('wrong');
+                }
+            });
+
+            if (selectedOption === q.correct) {
+                correctAnswers++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `<strong>✓ Benar!</strong><br>${q.explanation}`;
+                document.getElementById('correct-count').textContent = correctAnswers;
+            } else {
+                wrongAnswers++;
+                feedback.className = 'feedback wrong';
+                feedback.innerHTML = `<strong>✗ Salah!</strong><br>${q.explanation}`;
+                document.getElementById('wrong-count').textContent = wrongAnswers;
+            }
+
+            document.getElementById('submit-btn').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const percentage = Math.round((correctAnswers / questions.length) * 100);
+            let emoji = '🎉';
+            let message = 'Sempurna!';
+            
+            if (percentage < 60) {
+                emoji = '📚';
+                message = 'Ayo belajar lagi!';
+            } else if (percentage < 80) {
+                emoji = '👍';
+                message = 'Bagus!';
+            } else if (percentage < 100) {
+                emoji = '🌟';
+                message = 'Hebat!';
+            }
+
+            document.getElementById('quiz-container').style.display = 'none';
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.style.display = 'block';
+            resultContainer.innerHTML = `
+                <div class="result-box">
+                    <div class="emoji">${emoji}</div>
+                    <div class="result-message">${message}</div>
+                    <div class="result-score">${percentage}%</div>
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Benar: ${correctAnswers} | Salah: ${wrongAnswers}
+                    </p>
+                    <button class="btn-restart" onclick="restartQuiz()">Ulangi Quiz</button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            correctAnswers = 0;
+            wrongAnswers = 0;
+            selectedOption = null;
+            
+            document.getElementById('correct-count').textContent = '0';
+            document.getElementById('wrong-count').textContent = '0';
+            document.getElementById('quiz-container').style.display = 'block';
+            document.getElementById('result-container').style.display = 'none';
+            
+            loadQuestion();
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
